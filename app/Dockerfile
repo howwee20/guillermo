@@ -2,9 +2,17 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-COPY ./app /app/app
-COPY ./requirements.txt /app
+# Copy requirements first (good practice for Docker caching)
+COPY ./requirements.txt /app/requirements.txt
 
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# Install dependencies
+RUN pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "10000"]
+# Copy your application code
+COPY ./app /app
+
+# Expose the port the container will listen on (using default as placeholder)
+EXPOSE 8000
+
+# Command to run the application using the PORT environment variable
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "${PORT:-8000}"]
